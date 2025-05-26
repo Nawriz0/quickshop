@@ -17,6 +17,10 @@ services:
         sync: false
       - key: PORT
         value: 8000
+      - key: RENDER
+        value: true
+      - key: DJANGO_SETTINGS_MODULE
+        value: QuickShop.settings
     disk:
       name: sqlite
       mountPath: /data

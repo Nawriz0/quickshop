@@ -77,15 +77,15 @@ def product_detail(request, product_id):
 # Добавить товар в корзину
 def add_to_cart(request, pk):
     try:
-    product = get_object_or_404(Product, pk=pk)
-    cart = request.session.get('cart', {})
+        product = get_object_or_404(Product, pk=pk)
+        cart = request.session.get('cart', {})
         product_id = str(pk)
         
         if product_id in cart:
             messages.info(request, 'Этот товар уже в корзине')
         else:
             cart[product_id] = 1
-    request.session['cart'] = cart
+            request.session['cart'] = cart
             messages.success(request, 'Товар успешно добавлен в корзину')
         
         return redirect('home')
@@ -214,18 +214,18 @@ def checkout(request):
 
 def remove_from_cart(request, pk):
     try:
-    cart = request.session.get('cart', {})
+        cart = request.session.get('cart', {})
         product_id = str(pk)
         
         if product_id in cart:
             del cart[product_id]
-        request.session['cart'] = cart
+            request.session['cart'] = cart
             messages.success(request, 'Товар успешно удален из корзины')
         
         return redirect('cart')
     except Exception as e:
         messages.error(request, 'Произошла ошибка при удалении товара из корзины')
-    return redirect('cart')
+        return redirect('cart')
 
 # Регистрация пользователя
 def register_view(request):

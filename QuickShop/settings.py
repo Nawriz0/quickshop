@@ -161,11 +161,11 @@ WHITENOISE_MIMETYPES = {
 }
 
 # Security settings
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = os.environ.get('RENDER') == 'true'
+SESSION_COOKIE_SECURE = os.environ.get('RENDER') == 'true'
+CSRF_COOKIE_SECURE = os.environ.get('RENDER') == 'true'
 SECURE_BROWSER_XSS_FILTER = True
 
 # CSRF settings
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
-CSRF_COOKIE_DOMAIN = '.onrender.com'
+CSRF_COOKIE_DOMAIN = '.onrender.com' if os.environ.get('RENDER') else None

@@ -2,17 +2,23 @@
 # exit on error
 set -o errexit
 
-# Установка зависимостей
+echo "Installing dependencies..."
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 
-# Очистка старых статических файлов
+echo "Collecting static files..."
 python manage.py collectstatic --no-input --clear
 
-# Копируем базу данных в /data если мы на Render
+echo "Setting up database directory..."
 if [ -n "$RENDER" ]; then
     mkdir -p /data
-    cp db.sqlite3 /data/db.sqlite3 || true
+    # Копируем базу данных только если она существует и /data пустой
+    if [ -f db.sqlite3 ] && [ ! -f /data/db.sqlite3 ]; then
+        cp db.sqlite3 /data/db.sqlite3
+    fi
 fi
 
-# Миграции базы данных
-python manage.py migrate 
+echo "Running database migrations..."
+python manage.py migrate
+
+echo "Build completed successfully!" 
