@@ -59,7 +59,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'QuickShop.urls'
-
+# njknnn
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
