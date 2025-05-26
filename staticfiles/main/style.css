@@ -1,0 +1,438 @@
+:root {
+    --qs-primary: #2A9D8F; /* Приглушенный бирюзово-зеленый */
+    --qs-accent: #E76F51;  /* Теплый кораллово-оранжевый */
+    --qs-dark: #264653;    /* Глубокий сине-зеленый (текст, заголовки) */
+    --qs-light-bg: #FDFCFB; /* Очень светлый фон */
+    --qs-neutral: #E9ECEF; /* Светло-серый (рамки, разделители) */
+    --qs-success: #28A745; /* Зеленый (Bootstrap) */
+    --qs-danger: #DC3545;  /* Красный (Bootstrap) */
+    --qs-white: #FFFFFF;
+    --qs-light-text: #f8f9fa; /* Для текста на темном фоне */
+    --qs-dark-hover: #213c47; /* Чуть темнее --qs-dark для hover */
+    --qs-primary-hover: #248a7f; /* Чуть темнее --qs-primary для hover */
+    --qs-accent-hover: #e06040; /* Чуть темнее --qs-accent для hover */
+}
+
+/* Общие стили */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--qs-light-bg);
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    margin: 0;
+    padding-top: 70px; /* Компенсация высоты фиксированной навигационной панели */
+    color: var(--qs-dark);
+    display: flex; /* Для прижатия футера */
+    flex-direction: column; /* Для прижатия футера */
+    min-height: 100vh; /* Для прижатия футера */
+}
+
+main.container {
+    flex-grow: 1; /* Для прижатия футера */
+}
+
+
+h1, h2, h3, h4, h5 {
+    font-weight: 600;
+    color: var(--qs-dark);
+}
+
+a {
+    color: var(--qs-primary);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--qs-primary-hover);
+    text-decoration: none; /* Убираем подчеркивание при наведении по умолчанию, если не нужно */
+}
+
+.container { /* Уже есть, но можно проверить */
+    max-width: 1140px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Навигационная панель */
+.navbar {
+    background-color: var(--qs-dark) !important; /* Используем --qs-dark для фона */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1030;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.75rem;
+    color: var(--qs-light-text) !important;
+}
+
+.navbar .nav-link.text-white { /* Для "Привет, username!" */
+    color: var(--qs-light-text) !important;
+}
+
+.navbar .btn-outline-light {
+    border-color: var(--qs-light-text);
+    color: var(--qs-light-text);
+}
+
+.navbar .btn-outline-light:hover {
+    background-color: var(--qs-light-text);
+    color: var(--qs-dark); /* Текст кнопки при наведении */
+}
+
+/* Карточки товаров */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--qs-neutral);
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: var(--qs-white);
+}
+
+.card:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 12px 24px rgba(38, 70, 83, 0.1); /* Тень с оттенком --qs-dark */
+}
+
+.card img.card-img-top { /* Уточняем селектор */
+    border-top-left-radius: 9px;
+    border-top-right-radius: 9px;
+    max-height: 250px;
+    object-fit: cover;
+    width: 100%;
+    border-bottom: 1px solid var(--qs-neutral); /* Тонкая линия под изображением */
+}
+
+.card-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--qs-dark);
+}
+
+.card-text { /* Цена товара */
+    font-size: 1.1rem;
+    color: var(--qs-accent); /* Акцентный цвет для цены */
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Кнопки */
+.btn {
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem; /* Немного увеличим padding */
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+    border: 1px solid transparent; /* Убираем стандартную границу, если она не нужна */
+}
+.btn:active {
+    transform: translateY(1px); /* Эффект нажатия */
+}
+
+.btn-primary {
+    background-color: var(--qs-primary);
+    border-color: var(--qs-primary);
+    color: var(--qs-white);
+}
+.btn-primary:hover {
+    background-color: var(--qs-primary-hover);
+    border-color: var(--qs-primary-hover);
+    color: var(--qs-white);
+}
+
+.btn-success { /* Используем для "Добавить в корзину", "Оформить заказ" */
+    background-color: var(--qs-accent);
+    border-color: var(--qs-accent);
+    color: var(--qs-white);
+}
+.btn-success:hover {
+    background-color: var(--qs-accent-hover);
+    border-color: var(--qs-accent-hover);
+    color: var(--qs-white);
+}
+/* Если нужен стандартный зеленый Bootstrap для сообщений и т.п. */
+.btn-bst-success {
+    background-color: var(--qs-success);
+    border-color: var(--qs-success);
+    color: var(--qs-white);
+}
+.btn-bst-success:hover {
+    background-color: #1e7e34; /* Темнее Bootstrap зеленого */
+    border-color: #1e7e34;
+    color: var(--qs-white);
+}
+
+
+.btn-danger {
+    background-color: var(--qs-danger);
+    border-color: var(--qs-danger);
+    color: var(--qs-white);
+}
+.btn-danger:hover {
+    background-color: #c82333; /* Темнее Bootstrap красного */
+    border-color: #c82333;
+    color: var(--qs-white);
+}
+.btn-outline-danger {
+    color: var(--qs-danger);
+    border-color: var(--qs-danger);
+}
+.btn-outline-danger:hover {
+    color: var(--qs-white);
+    background-color: var(--qs-danger);
+    border-color: var(--qs-danger);
+}
+
+
+.btn-secondary {
+    background-color: var(--qs-neutral);
+    border-color: var(--qs-neutral);
+    color: var(--qs-dark);
+}
+.btn-secondary:hover {
+    background-color: #d3d9df; /* Чуть темнее --qs-neutral */
+    border-color: #d3d9df;
+    color: var(--qs-dark);
+}
+.btn-outline-secondary {
+    color: var(--qs-dark);
+    border-color: var(--qs-dark);
+}
+.btn-outline-secondary:hover {
+    color: var(--qs-white);
+    background-color: var(--qs-dark);
+    border-color: var(--qs-dark);
+}
+
+
+.btn-link {
+    font-weight: normal;
+    color: var(--qs-primary);
+}
+.btn-link:hover {
+    color: var(--qs-primary-hover);
+}
+
+/* Страница товара */
+.product-detail-img {
+    max-width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(38, 70, 83, 0.1); /* Тень с оттенком --qs-dark */
+    margin-bottom: 20px;
+}
+.product-detail-img.img-fluid { /* Для Bootstrap класса */
+    border-radius: 10px;
+}
+
+/* Таблицы (Корзина) */
+table {
+    background-color: var(--qs-white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(38, 70, 83, 0.05);
+}
+
+.table thead th {
+    background-color: var(--qs-dark);
+    color: var(--qs-light-text);
+    border-bottom: none;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+    border-color: var(--qs-neutral); /* Цвет границ ячеек */
+}
+
+/* Формы (Оформление заказа, Регистрация, Вход) */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    color: var(--qs-dark);
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid var(--qs-neutral);
+    padding: 0.5rem 0.75rem;
+    background-color: var(--qs-white);
+    color: var(--qs-dark);
+}
+.form-control::placeholder {
+    color: #aab7c4; /* Стандартный плейсхолдер Stripe */
+}
+
+.form-control:focus {
+    border-color: var(--qs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(42, 157, 143, .25); /* Тень с оттенком --qs-primary */
+}
+.invalid-feedback.d-block { /* Для ошибок валидации форм Django */
+    color: var(--qs-danger);
+}
+
+/* Стили для Stripe Card Element (уже есть в checkout.html, но можно продублировать/обобщить) */
+.StripeElement {
+    border-color: var(--qs-neutral);
+    border-radius: 8px; /* Синхронизируем с .form-control */
+}
+.StripeElement--focus {
+    border-color: var(--qs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(42, 157, 143, .25);
+}
+.StripeElement--invalid {
+    border-color: var(--qs-danger);
+}
+#card-errors {
+    color: var(--qs-danger);
+}
+
+
+/* Страница "Спасибо" */
+.thanks-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 200px); /* Учитываем высоту шапки и футера */
+    text-align: center;
+}
+.thanks-page h1 {
+    color: var(--qs-primary); /* Используем основной цвет */
+    font-size: 2.5rem;
+}
+.thanks-page .lead {
+    font-size: 1.25rem;
+    color: var(--qs-dark);
+}
+.thanks-page .bi-check-circle-fill { /* Иконка галочки */
+    color: var(--qs-success) !important;
+}
+
+
+/* Адаптивность для изображений */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Стили для изображений по умолчанию, если основное не загружено */
+img[alt="Заглушка"] {
+    background-color: var(--qs-neutral);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d; /* Оставим серый для контраста с фоном заглушки */
+    font-style: italic;
+    height: 250px; /* Соответствует max-height для .card img */
+    width: 100%;
+    border-radius: 9px;
+}
+
+/* Дополнительные стили для страницы корзины */
+.cart-summary {
+    background-color: var(--qs-white);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(38, 70, 83, 0.05);
+    margin-top: 20px;
+    border: 1px solid var(--qs-neutral);
+}
+.cart-summary h4 {
+    margin-bottom: 0; /* Убираем отступ, если он не нужен */
+    color: var(--qs-dark);
+}
+.cart-summary .text-success { /* Для итоговой суммы */
+    color: var(--qs-accent) !important; /* Используем акцентный цвет */
+}
+
+
+/* Футер */
+footer.bg-dark {
+    background-color: var(--qs-dark) !important;
+    color: var(--qs-light-text);
+}
+
+/* Сообщения Django (Alerts) */
+.alert-primary { background-color: var(--qs-primary); color: var(--qs-white); border-color: var(--qs-primary-hover); }
+.alert-secondary { background-color: var(--qs-neutral); color: var(--qs-dark); border-color: #d3d9df; }
+.alert-success { background-color: var(--qs-success); color: var(--qs-white); border-color: #1e7e34; }
+.alert-danger { background-color: var(--qs-danger); color: var(--qs-white); border-color: #c82333; }
+.alert-warning { background-color: #ffc107; color: var(--qs-dark); border-color: #e0a800; } /* Стандартный желтый Bootstrap */
+.alert-info { background-color: #0dcaf0; color: var(--qs-dark); border-color: #0baccc; } /* Стандартный голубой Bootstrap */
+.alert .btn-close { filter: invert(1) grayscale(100%) brightness(200%); } /* Делаем крестик белым на цветных фонах */
+.alert-secondary .btn-close, .alert-warning .btn-close, .alert-info .btn-close { filter: none; } /* Возвращаем стандартный для светлых */
+/* Анимация перехода страниц */
+body {
+    animation: fadeInAnimation ease 0.7s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+        transform: translateY(10px); /* Небольшой сдвиг снизу для эффекта "всплытия" */
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для AOS (если нужны дополнительные переопределения) */
+[data-aos="fade-up"] {
+    transition-property: transform, opacity; /* Убедимся, что opacity тоже анимируется */
+}
+/* Анимация появления элементов "раздача карт" */
+@keyframes dealAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(60vh) scale(0.7); /* Начинаем снизу и меньше размером */
+  }
+  70% {
+    opacity: 0.9;
+    transform: translateY(-10px) scale(1.03); /* Небольшой "подскок" и увеличение */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1); /* Конечное положение */
+  }
+}
+
+.deal-animated-item {
+  opacity: 0; /* Изначально невидимы */
+  animation-name: dealAnimation;
+  animation-duration: 0.7s; /* Длительность анимации */
+  animation-fill-mode: forwards; /* Остаются в конечном состоянии */
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Плавность с эффектом "выталкивания" */
+}
+
+/* Задержки для каскадного эффекта */
+.deal-animated-item:nth-child(1) { animation-delay: 0.05s; }
+.deal-animated-item:nth-child(2) { animation-delay: 0.1s; }
+.deal-animated-item:nth-child(3) { animation-delay: 0.15s; }
+.deal-animated-item:nth-child(4) { animation-delay: 0.2s; }
+.deal-animated-item:nth-child(5) { animation-delay: 0.25s; }
+.deal-animated-item:nth-child(6) { animation-delay: 0.3s; }
+.deal-animated-item:nth-child(7) { animation-delay: 0.35s; }
+.deal-animated-item:nth-child(8) { animation-delay: 0.4s; }
+.deal-animated-item:nth-child(9) { animation-delay: 0.45s; }
+.deal-animated-item:nth-child(10) { animation-delay: 0.5s; }
+.deal-animated-item:nth-child(11) { animation-delay: 0.55s; }
+.deal-animated-item:nth-child(12) { animation-delay: 0.6s; }
+/* При необходимости можно добавить больше правил :nth-child или использовать JavaScript для динамических задержек */

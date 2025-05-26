@@ -1,0 +1,312 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}Избранное | QuickShop{% endblock %}
+
+{% block content %}
+<style>
+    .favorites-header {
+        margin-bottom: 2rem;
+        padding: 2rem 0;
+        background-color: var(--light-bg);
+        border-radius: 20px;
+        position: relative;
+    }
+
+    .home-button {
+        position: absolute;
+        left: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        background-color: var(--primary-color);
+        color: white;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .home-button:hover {
+        background-color: var(--primary-hover-color);
+        transform: translateY(-52%);
+        color: white;
+    }
+
+    .favorites-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .favorites-subtitle {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .favorites-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+        padding: 1rem;
+    }
+
+    .favorite-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .favorite-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    .favorite-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .favorite-info {
+        padding: 1.5rem;
+    }
+
+    .favorite-title {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-decoration: none;
+    }
+
+    .favorite-price {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--success-color);
+        margin-bottom: 1rem;
+    }
+
+    .favorite-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-add-to-cart {
+        flex: 2;
+        padding: 0.75rem;
+        border-radius: 50px;
+        border: none;
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-add-to-cart:hover {
+        background-color: var(--primary-hover-color);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .btn-remove-favorite {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: 50px;
+        border: none;
+        background-color: #ffebee;
+        color: #e53935;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-remove-favorite:hover {
+        background-color: #ef5350;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .empty-favorites {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+
+    .empty-favorites-icon {
+        font-size: 4rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+    }
+
+    .empty-favorites-text {
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .favorites-header {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .favorites-title {
+            font-size: 1.5rem;
+        }
+
+        .favorites-subtitle {
+            font-size: 1rem;
+        }
+
+        .home-button {
+            position: static;
+            transform: none;
+            margin-bottom: 1rem;
+            display: inline-flex;
+        }
+
+        .home-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .favorites-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="favorites-header text-center">
+        <a href="{% url 'home' %}" class="home-button">
+            <i class="bi bi-house-door"></i>
+            На главную
+        </a>
+        <h1 class="favorites-title">Избранное</h1>
+        <p class="favorites-subtitle">Ваши любимые товары</p>
+    </div>
+
+    {% if products %}
+    <div class="favorites-grid">
+        {% for product in products %}
+        <div class="favorite-card">
+            <a href="{% url 'product_detail' product.id %}">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" class="favorite-image" alt="{{ product.title }}">
+                {% else %}
+                <img src="{% static 'main/default.jpg' %}" class="favorite-image" alt="Заглушка">
+                {% endif %}
+            </a>
+            <div class="favorite-info">
+                <a href="{% url 'product_detail' product.id %}" class="favorite-title">
+                    {{ product.title }}
+                </a>
+                <div class="favorite-price">
+                    {{ product.price }} <span class="currency">сум</span>
+                </div>
+                <div class="favorite-actions">
+                    <a href="{% url 'add_to_cart' pk=product.id %}" class="btn-add-to-cart">
+                        <i class="bi bi-cart-plus"></i>
+                        В корзину
+                    </a>
+                    <button class="btn-remove-favorite" data-product-id="{{ product.id }}">
+                        <i class="bi bi-heart-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-favorites">
+        <i class="bi bi-heart empty-favorites-icon"></i>
+        <p class="empty-favorites-text">У вас пока нет избранных товаров</p>
+        <a href="{% url 'home' %}" class="btn btn-primary">
+            <i class="bi bi-shop"></i>
+            Начать покупки
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    const removeButtons = document.querySelectorAll('.btn-remove-favorite');
+    
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            const card = this.closest('.favorite-card');
+            
+            fetch(`/toggle-favorite/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        window.location.href = '/login/';
+                        throw new Error('Требуется авторизация');
+                    }
+                    throw new Error('Ошибка сети');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'removed') {
+                    card.remove();
+                    // Если это была последняя карточка, показываем сообщение о пустом списке
+                    if (document.querySelectorAll('.favorite-card').length === 0) {
+                        location.reload();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                if (error.message !== 'Требуется авторизация') {
+                    alert('Произошла ошибка. Пожалуйста, попробуйте позже.');
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,23 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}Спасибо за покупку! | QuickShop{% endblock %}
+
+{% block content %}
+<div class="text-center thanks-page">
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-check-circle-fill text-success mb-3" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+    </svg>
+    <h1 class="display-5 mb-3">Спасибо за вашу покупку!</h1>
+    <p class="lead">Ваш заказ успешно оформлен и оплачен.</p>
+    <p>Мы скоро свяжемся с вами для подтверждения деталей доставки (если это применимо).</p>
+    {% if order %} {# Предполагается, что объект order может быть передан в контекст #}
+        <p class="mt-4">Номер вашего заказа: <strong class="text-primary">{{ order.id }}</strong></p>
+        <p>Сумма заказа: <strong class="text-success">{{ order.total }} сум</strong></p>
+    {% endif %}
+    <hr class="my-4">
+    <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Продолжить покупки</a>
+    {# Можно добавить ссылку на страницу "Мои заказы", если такая будет #}
+    {# <a href="#" class="btn btn-outline-secondary btn-lg ms-2">Мои заказы</a> #}
+</div>
+{% endblock %}

@@ -1,0 +1,225 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Оформление заказа | QuickShop{% endblock %}
+
+{% block extra_head %}
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        .StripeElement {
+            box-sizing: border-box;
+            height: 40px;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: .25rem; /* Bootstrap's default border-radius */
+            background-color: white;
+            box-shadow: 0 1px 3px 0 #e6ebf1;
+            transition: box-shadow 150ms ease;
+        }
+        .StripeElement--focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+        .StripeElement--invalid {
+            border-color: #dc3545;
+        }
+        #card-errors {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <h2 class="mb-4 text-center">Оформление заказа</h2>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post" id="payment-form">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <p class="mb-0">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <h4 class="mb-3">Контактная информация и адрес доставки</h4>
+
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                        {{ form.name|add_class:"form-control" }}
+                        {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.address.id_for_label }}" class="form-label">{{ form.address.label }}</label>
+                        {{ form.address|add_class:"form-control" }}
+                        {% if form.address.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.address.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h4 class="mb-3">Детали оплаты</h4>
+                    <div class="mb-3">
+                        <label for="card-element" class="form-label">
+                            Данные кредитной или дебетовой карты
+                        </label>
+                        <div id="card-element" class="form-control">
+                            <!-- Stripe Card Element будет вставлен сюда -->
+                        </div>
+                        <div id="card-errors" role="alert" class="mt-1"></div>
+                    </div>
+                    <input type="hidden" name="payment_method_id" id="payment_method_id">
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Итого к оплате:</h5>
+                        <h5 class="mb-0 text-success fw-bold">{{ total }} сум</h5>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100" id="submit-button">
+                        <span id="button-text">Оплатить {{ total }} сум</span>
+                        <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var stripePublishableKey = '{{ stripe_publishable_key }}';
+        var clientSecret = '{{ client_secret }}';
+        var form = document.getElementById('payment-form');
+        var submitButton = document.getElementById('submit-button');
+        var buttonText = document.getElementById('button-text');
+        var spinner = document.getElementById('spinner');
+        var cardErrors = document.getElementById('card-errors');
+
+        if (!stripePublishableKey) {
+            console.error('Stripe Publishable Key не найден.');
+            if(cardErrors) cardErrors.textContent = 'Ошибка конфигурации платежной системы. Пожалуйста, свяжитесь с поддержкой.';
+            if(submitButton) submitButton.disabled = true;
+            return;
+        }
+        if (!clientSecret) {
+            console.error('Stripe Client Secret не найден.');
+            if(cardErrors) cardErrors.textContent = 'Не удалось инициализировать платежную форму. Пожалуйста, обновите страницу или попробуйте позже.';
+            if(submitButton) submitButton.disabled = true;
+            return;
+        }
+
+        var stripe = Stripe(stripePublishableKey);
+        var elements = stripe.elements({ clientSecret: clientSecret }); // Передаем clientSecret при создании elements
+
+        var cardElement = elements.create('card', {
+            style: {
+                base: {
+                    iconColor: '#666EE8',
+                    color: '#31325F',
+                    fontWeight: '400',
+                    fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif',
+                    fontSize: '16px',
+                    fontSmoothing: 'antialiased',
+                    '::placeholder': {
+                        color: '#CFD7E0',
+                    },
+                },
+            },
+            hidePostalCode: true
+        });
+
+        if (document.getElementById('card-element')) {
+            cardElement.mount('#card-element');
+        } else {
+            console.error('Элемент #card-element не найден на странице.');
+            if(submitButton) submitButton.disabled = true;
+            return;
+        }
+
+        cardElement.on('change', function(event) {
+            if (event.error) {
+                cardErrors.textContent = event.error.message;
+            } else {
+                cardErrors.textContent = '';
+            }
+        });
+
+        if (form) {
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                setLoading(true);
+
+                const { error, paymentIntent } = await stripe.confirmCardPayment(
+                    clientSecret, {
+                        payment_method: {
+                            card: cardElement,
+                            billing_details: {
+                                name: form.elements.name.value, // Получаем значение из поля 'name'
+                                // phone: form.elements.phone.value, // Если бы было поле phone
+                                // Для адреса Stripe ожидает объект address
+                                address: {
+                                    line1: form.elements.address.value, // Используем поле 'address' как line1
+                                    // city: 'Ваш город', // Можно добавить, если есть отдельные поля
+                                    // postal_code: 'Ваш индекс',
+                                    // country: 'UZ', // Код страны
+                                }
+                            },
+                        },
+                    }
+                );
+
+                if (error) {
+                    cardErrors.textContent = error.message;
+                    setLoading(false);
+                } else {
+                    if (paymentIntent.status === 'succeeded') {
+                        document.getElementById('payment_method_id').value = paymentIntent.payment_method;
+                        form.submit();
+                    } else {
+                        cardErrors.textContent = "Платеж не был успешным. Статус: " + paymentIntent.status;
+                        setLoading(false);
+                    }
+                }
+            });
+        } else {
+            console.error('Форма #payment-form не найдена.');
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitButton.disabled = true;
+                spinner.style.display = 'inline-block';
+                buttonText.style.display = 'none';
+            } else {
+                submitButton.disabled = false;
+                spinner.style.display = 'none';
+                buttonText.style.display = 'inline';
+            }
+        }
+    });
+</script>
+{% endblock %}

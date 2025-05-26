@@ -1,0 +1,573 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}Главная | QuickShop{% endblock %}
+
+{% block content %}
+<style>
+    /* Стили для карточек товаров */
+    .product-card {
+        border: none;
+        transition: all 0.3s ease;
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .product-card:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        transform: translateY(-5px);
+    }
+
+    .product-image-wrapper {
+        position: relative;
+        padding-top: 100%; /* Соотношение сторон 1:1 */
+        overflow: hidden;
+        background-color: var(--light-bg);
+    }
+
+    .product-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .product-card:hover .product-image {
+        transform: scale(1.05);
+    }
+
+    .product-info {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .product-title {
+        font-size: 1.1rem;
+        margin: 0 0 0.75rem;
+        color: var(--text-color);
+        font-weight: 500;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-clamp: 2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .product-price {
+        font-size: 1.25rem;
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        margin-top: auto;
+    }
+
+    .cart-btn {
+        width: 100%;
+        border-radius: 50px;
+        padding: 0.75rem;
+        border: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-success {
+        background-color: var(--success-color);
+        border-color: var(--success-color);
+    }
+
+    .btn-success:hover {
+        background-color: #43A047;
+        border-color: #43A047;
+        transform: translateY(-2px);
+    }
+
+    .btn-info {
+        background-color: var(--info-color);
+        border-color: var(--info-color);
+        color: white;
+    }
+
+    .btn-info:hover {
+        background-color: #1E88E5;
+        border-color: #1E88E5;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Анимация появления карточек */
+    .product-card {
+        animation: fadeInUp 0.6s ease forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Фиксированные задержки анимации для карточек */
+    .product-card:nth-child(1) { animation-delay: 0.1s; }
+    .product-card:nth-child(2) { animation-delay: 0.2s; }
+    .product-card:nth-child(3) { animation-delay: 0.3s; }
+    .product-card:nth-child(4) { animation-delay: 0.4s; }
+    .product-card:nth-child(5) { animation-delay: 0.5s; }
+    .product-card:nth-child(6) { animation-delay: 0.6s; }
+    .product-card:nth-child(7) { animation-delay: 0.7s; }
+    .product-card:nth-child(8) { animation-delay: 0.8s; }
+    .product-card:nth-child(n+9) { animation-delay: 0.9s; }
+
+    /* Стили для баннера и товара дня */
+    .hero-section {
+        margin-bottom: 3rem;
+    }
+
+    .banner-section {
+        opacity: 0;
+        animation: fadeInUp 1s ease forwards;
+        height: 100%;
+    }
+
+    .banner {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        background: linear-gradient(45deg, #1a237e, #0d47a1);
+        height: 400px;
+        width: 100%;
+    }
+
+    .banner-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 2rem;
+        background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0) 100%);
+        color: white;
+        z-index: 2;
+    }
+
+    .banner-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        z-index: 1;
+    }
+
+    .banner-text {
+        max-width: 500px;
+        position: relative;
+        z-index: 3;
+    }
+
+    .banner-title {
+        font-size: 2.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+
+    .banner-description {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    .banner-btn {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        border-radius: 50px;
+        background-color: var(--accent-color);
+        border: none;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .banner-btn:hover {
+        transform: translateY(-2px);
+        background-color: #f57c00;
+        color: white;
+    }
+
+    /* Обновленные стили для товара дня */
+    .product-day-section {
+        opacity: 0;
+        animation: fadeInUp 1s ease 0.3s forwards;
+        height: 100%;
+    }
+
+    .product-day-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-day-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .product-day-image-wrapper {
+        position: relative;
+        height: 200px;
+        background-color: var(--light-bg);
+        overflow: hidden;
+    }
+
+    .product-day-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .product-day-card:hover .product-day-image {
+        transform: scale(1.05);
+    }
+
+    .product-day-content {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: 0.75rem;
+    }
+
+    .product-day-header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .product-day-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        background-color: var(--accent-color);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        align-self: flex-start;
+    }
+
+    .product-day-badge i {
+        font-size: 0.75rem;
+    }
+
+    .product-day-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--text-color);
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-day-price {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .product-day-description {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin: 0;
+    }
+
+    .product-day-actions {
+        margin-top: auto;
+    }
+
+    .product-day-btn {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 50px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .product-day-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .product-day-btn.btn-success {
+        background-color: var(--success-color);
+        border-color: var(--success-color);
+    }
+
+    .product-day-btn.btn-success:hover {
+        background-color: #43A047;
+        border-color: #43A047;
+    }
+
+    .product-day-btn.btn-info {
+        background-color: var(--info-color);
+        border-color: var(--info-color);
+        color: white;
+    }
+
+    .product-day-btn.btn-info:hover {
+        background-color: #1E88E5;
+        border-color: #1E88E5;
+    }
+
+    @media (max-width: 991px) {
+        .hero-section {
+            margin-bottom: 2rem;
+        }
+        
+        .banner, .product-day-card {
+            height: 300px;
+        }
+
+        .product-day-image-wrapper {
+            height: 150px;
+        }
+
+        .product-day-content {
+            padding: 1rem;
+            gap: 0.5rem;
+        }
+
+        .product-day-title {
+            font-size: 1rem;
+        }
+
+        .product-day-price {
+            font-size: 1.25rem;
+        }
+
+        .product-day-description {
+            font-size: 0.85rem;
+            -webkit-line-clamp: 2;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .banner {
+            height: 300px;
+        }
+        
+        .banner-text {
+            max-width: 100%;
+        }
+        
+        .banner-title {
+            font-size: 1.8rem;
+        }
+        
+        .banner-description {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<!-- Секция с баннером и товаром дня -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <!-- Рекламный баннер -->
+                <div class="banner-section">
+                    <div class="banner">
+                        {% if active_banner %}
+                            <img src="{{ active_banner.image.url }}" alt="{{ active_banner.title }}" class="banner-image">
+                            <div class="banner-content">
+                                <div class="banner-text">
+                                    <h1 class="banner-title">{{ active_banner.title }}</h1>
+                                    <p class="banner-description">{{ active_banner.description }}</p>
+                                    <a href="{{ active_banner.button_link }}" class="banner-btn">
+                                        {{ active_banner.button_text }}
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <img src="{% static 'main/banner.jpg' %}" alt="Реклама" class="banner-image">
+                            <div class="banner-content">
+                                <div class="banner-text">
+                                    <h1 class="banner-title">Добро пожаловать в QuickShop</h1>
+                                    <p class="banner-description">Откройте для себя мир качественных товаров по выгодным ценам.</p>
+                                    <a href="{% url 'home' %}" class="banner-btn">
+                                        Начать покупки
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if product_of_the_day %}
+            <div class="col-lg-4">
+                <!-- Товар дня -->
+                <div class="product-day-section">
+                    <div class="product-day-card">
+                        <div class="product-day-image-wrapper">
+                            {% if product_of_the_day.image %}
+                            <img src="{{ product_of_the_day.image.url }}" class="product-day-image" alt="{{ product_of_the_day.title }}">
+                            {% else %}
+                            <img src="{% static 'main/default.jpg' %}" class="product-day-image" alt="Заглушка">
+                            {% endif %}
+                        </div>
+                        <div class="product-day-content">
+                            <div class="product-day-header">
+                                <span class="product-day-badge">
+                                    <i class="bi bi-star-fill"></i>
+                                    Товар дня
+                                </span>
+                                <h3 class="product-day-title">{{ product_of_the_day.title }}</h3>
+                            </div>
+                            <div class="product-day-price">{{ product_of_the_day.price }} сум</div>
+                            <p class="product-day-description">{{ product_of_the_day.description|truncatewords:15 }}</p>
+                            <div class="product-day-actions">
+                                {% if product_of_the_day.id|stringformat:"i" in request.session.cart %}
+                                    <a href="{% url 'cart' %}" class="btn product-day-btn btn-info">В корзине</a>
+            {% else %}
+                                    <a href="{% url 'add_to_cart' product_of_the_day.id %}" class="btn product-day-btn btn-success">В корзину</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Список товаров -->
+<div class="container">
+    <div class="row g-4">
+        {% if products_with_cart_status %}
+            {% for item in products_with_cart_status %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="product-card">
+                    <a href="{% url 'product_detail' item.product.id %}" class="text-decoration-none">
+                        <div class="product-image-wrapper">
+                            {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" class="product-image" alt="{{ item.product.title }}">
+                            {% else %}
+                            <img src="{% static 'main/default.jpg' %}" class="product-image" alt="Заглушка">
+                            {% endif %}
+                        </div>
+                        <div class="product-info">
+                            <h5 class="product-title">{{ item.product.title }}</h5>
+                            <div class="product-price">{{ item.product.price }} сум</div>
+                    {% if item.in_cart %}
+                                <a href="{% url 'cart' %}" class="btn btn-info cart-btn">В корзине</a>
+                            {% else %}
+                                <a href="{% url 'add_to_cart' pk=item.product.id %}" class="btn btn-success cart-btn">В корзину</a>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-warning text-center">
+                    {% if request.GET.search %}
+                        По вашему запросу ничего не найдено
+                    {% else %}
+                        Товары не найдены
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Автоматический поиск при вводе
+    document.querySelector('.search-input').addEventListener('input', function(e) {
+        clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(() => {
+            document.getElementById('searchForm').submit();
+        }, 500);
+    });
+
+    // Обработка добавления в корзину
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.cart-btn') || e.target.matches('.product-day-btn')) {
+            e.preventDefault();
+            const url = e.target.href;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    showAuthMessage();
+                    throw new Error('auth_required');
+                }
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response;
+            })
+            .then(() => {
+                window.location.reload();
+            })
+            .catch(error => {
+                if (error.message !== 'auth_required') {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка. Пожалуйста, попробуйте позже.');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
