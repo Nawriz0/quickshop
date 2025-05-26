@@ -3,7 +3,7 @@ services:
     name: quickshop
     env: python
     buildCommand: "./build.sh"
-    startCommand: "gunicorn QuickShop.wsgi:application --bind 0.0.0.0:$PORT"
+    startCommand: "gunicorn QuickShop.wsgi:application --bind 0.0.0.0:$PORT --workers 4 --threads 4"
     envVars:
       - key: DEBUG
         value: False
@@ -16,4 +16,8 @@ services:
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: PORT
-        value: 8000 
+        value: 8000
+    disk:
+      name: sqlite
+      mountPath: /data
+      sizeGB: 1 
