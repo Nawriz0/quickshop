@@ -33,6 +33,6 @@ echo "Running database migrations..."
 python manage.py migrate
 
 echo "Testing WSGI application..."
-PYTHONPATH=$PYTHONPATH:$PWD python -c "from wsgi import app; print('WSGI application loaded successfully')"
+PYTHONPATH=$PYTHONPATH:$PWD python -c "from QuickShop.wsgi import application; print('WSGI application loaded successfully')"
 
 echo "Build completed successfully!" 

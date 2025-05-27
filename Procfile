@@ -1,1 +1,1 @@
-web: cd $RENDER_PROJECT_DIR && PYTHONPATH=$PYTHONPATH:$PWD gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2 --threads 2 --log-level debug 
+web: cd $RENDER_PROJECT_DIR && gunicorn QuickShop.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 2 --log-level debug 
