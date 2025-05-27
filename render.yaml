@@ -22,6 +22,8 @@ services:
         value: QuickShop.settings
       - key: PYTHONPATH
         value: $RENDER_PROJECT_DIR
+      - key: WSGI_APP
+        value: QuickShop.wsgi:application
     disk:
       name: sqlite
       mountPath: /data

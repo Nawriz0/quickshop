@@ -9,6 +9,10 @@ pip install -r requirements.txt
 echo "Checking project structure..."
 ls -la
 pwd
+echo "Python path:"
+python -c "import sys; print('\n'.join(sys.path))"
+echo "Current directory contents:"
+ls -R
 
 echo "Collecting static files..."
 python manage.py collectstatic --no-input --clear
@@ -24,5 +28,8 @@ fi
 
 echo "Running database migrations..."
 python manage.py migrate
+
+echo "Testing WSGI application..."
+python -c "from QuickShop.wsgi import application; print('WSGI application loaded successfully')"
 
 echo "Build completed successfully!" 
