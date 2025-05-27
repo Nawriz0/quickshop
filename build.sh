@@ -33,6 +33,19 @@ echo "Running database migrations..."
 python manage.py migrate
 
 echo "Testing WSGI application..."
-PYTHONPATH=$PYTHONPATH:$PWD python -c "from QuickShop.wsgi import application; print('WSGI application loaded successfully')"
+PYTHONPATH=$PYTHONPATH:$PWD python -c "
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'QuickShop.settings')
+from QuickShop.wsgi import application
+print('WSGI application loaded successfully')
+"
+
+echo "Testing gunicorn configuration..."
+python -c "
+import gunicorn.config
+cfg = gunicorn.config.Config()
+cfg.set('config', 'gunicorn.conf.py')
+print('Gunicorn configuration loaded successfully')
+"
 
 echo "Build completed successfully!" 

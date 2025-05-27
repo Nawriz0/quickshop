@@ -4,7 +4,7 @@ services:
     env: python
     region: frankfurt
     buildCommand: "./build.sh"
-    startCommand: "cd $RENDER_PROJECT_DIR && gunicorn QuickShop.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 2 --log-level debug"
+    startCommand: "gunicorn -c gunicorn.conf.py"
     envVars:
       - key: DEBUG
         value: False
@@ -28,6 +28,8 @@ services:
         value: $RENDER_PROJECT_DIR/staticfiles
       - key: MEDIA_ROOT
         value: $RENDER_PROJECT_DIR/media
+      - key: PROJECT_DIR
+        value: $RENDER_PROJECT_DIR
     disk:
       name: sqlite
       mountPath: /data

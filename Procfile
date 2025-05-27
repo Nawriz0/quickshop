@@ -1,1 +1,1 @@
-web: cd $RENDER_PROJECT_DIR && gunicorn QuickShop.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 2 --log-level debug 
+web: gunicorn -c gunicorn.conf.py 
