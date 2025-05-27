@@ -4,7 +4,7 @@ services:
     env: python
     region: frankfurt
     buildCommand: "./build.sh"
-    startCommand: "gunicorn -c gunicorn.conf.py"
+    startCommand: "gunicorn QuickShop.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 2 --log-level debug"
     envVars:
       - key: DEBUG
         value: False

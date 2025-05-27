@@ -1,1 +1,1 @@
-web: gunicorn -c gunicorn.conf.py 
+web: gunicorn QuickShop.wsgi:application --log-file - 
