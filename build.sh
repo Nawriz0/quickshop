@@ -6,6 +6,10 @@ echo "Installing dependencies..."
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 
+echo "Checking project structure..."
+ls -la
+pwd
+
 echo "Collecting static files..."
 python manage.py collectstatic --no-input --clear
 

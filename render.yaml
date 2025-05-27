@@ -2,8 +2,9 @@ services:
   - type: web
     name: quickshop
     env: python
+    region: frankfurt
     buildCommand: "./build.sh"
-    startCommand: "gunicorn QuickShop.wsgi:application --bind 0.0.0.0:$PORT"
+    startCommand: "cd $RENDER_PROJECT_DIR && gunicorn QuickShop.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 2 --log-level debug"
     envVars:
       - key: DEBUG
         value: False
@@ -19,6 +20,8 @@ services:
         value: true
       - key: DJANGO_SETTINGS_MODULE
         value: QuickShop.settings
+      - key: PYTHONPATH
+        value: $RENDER_PROJECT_DIR
     disk:
       name: sqlite
       mountPath: /data
