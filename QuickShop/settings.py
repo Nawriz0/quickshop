@@ -15,7 +15,7 @@ from django.forms import widgets
 from dotenv import load_dotenv
 
 # Загружаем переменные окружения из файла .env
-load_dotenv()
+load_dotenv(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

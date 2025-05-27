@@ -1,0 +1,1 @@
+web: gunicorn QuickShop.wsgi:application 

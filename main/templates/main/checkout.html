@@ -37,6 +37,16 @@
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
         <h2 class="mb-4 text-center">Оформление заказа</h2>
+        
+        <!-- Добавляем отладочную информацию -->
+        {% if debug %}
+        <div class="alert alert-info">
+            <p>Debug info:</p>
+            <p>Stripe Publishable Key: {{ stripe_publishable_key|default:"Not set" }}</p>
+            <p>Client Secret: {{ client_secret|default:"Not set" }}</p>
+        </div>
+        {% endif %}
+        
         <div class="card shadow-sm">
             <div class="card-body">
                 <form method="post" id="payment-form">
@@ -118,6 +128,10 @@
         var buttonText = document.getElementById('button-text');
         var spinner = document.getElementById('spinner');
         var cardErrors = document.getElementById('card-errors');
+
+        console.log('Debug info:');
+        console.log('Stripe Publishable Key:', stripePublishableKey);
+        console.log('Client Secret exists:', !!clientSecret);
 
         if (!stripePublishableKey) {
             console.error('Stripe Publishable Key не найден.');

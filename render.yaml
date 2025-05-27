@@ -3,7 +3,7 @@ services:
     name: quickshop
     env: python
     buildCommand: "./build.sh"
-    startCommand: "gunicorn QuickShop.wsgi:application --bind 0.0.0.0:$PORT --workers 4 --threads 4"
+    startCommand: "gunicorn QuickShop.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: DEBUG
         value: False
@@ -15,8 +15,6 @@ services:
         sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
-      - key: PORT
-        value: 8000
       - key: RENDER
         value: true
       - key: DJANGO_SETTINGS_MODULE

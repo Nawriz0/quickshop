@@ -6,8 +6,8 @@ from .forms import OrderForm, UserCreationFormCustom
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
-from django.conf import settings # Для доступа к ключам Stripe
-import stripe # Библиотека Stripe
+from django.conf import settings
+import stripe
 from django.db.models import Q
 import random
 from random import choice
@@ -106,7 +106,6 @@ def cart_view(request):
         products.append(product)
     return render(request, 'main/cart.html', {'products': products, 'total': total})
 
-
 # Очистить корзину
 def clear_cart(request):
     request.session['cart'] = {}
@@ -119,62 +118,42 @@ def checkout(request):
         messages.error(request, "Ваша корзина пуста.")
         return redirect('cart')
 
-    total_amount = 0 # Сумма в минимальных единицах валюты (например, тийинах для сумов)
-    order_items_details = [] # Для описания заказа в Stripe
+    # Добавляем отладочную информацию
+    print("Debug: STRIPE_PUBLISHABLE_KEY =", settings.STRIPE_PUBLISHABLE_KEY)
+    print("Debug: STRIPE_SECRET_KEY exists =", bool(settings.STRIPE_SECRET_KEY))
+
+    total_amount = 0
+    order_items_details = []
 
     for pk, qty in cart.items():
         product = get_object_or_404(Product, pk=pk)
-        total_amount += int(product.price * qty * 100) # Цена в тийинах
+        total_amount += int(product.price * qty * 100)
         order_items_details.append(f"{product.title} (x{qty})")
 
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
-            # Получаем токен платежного метода от Stripe (предполагается, что он будет в request.POST['stripeToken'] или request.POST['payment_method_id'])
-            # Для Stripe Elements (Payment Intents API) это будет payment_method_id
             payment_method_id = request.POST.get('payment_method_id')
 
             try:
-                # Создаем PaymentIntent
                 intent = stripe.PaymentIntent.create(
                     amount=total_amount,
-                    currency='uzs', # Валюта - узбекский сум
+                    currency='uzs',
                     payment_method=payment_method_id,
-                    confirm=True, # Сразу подтверждаем платеж
-                    description=f"Заказ QuickShop: {', '.join(order_items_details)}", # Общее описание
-                    # Для автоматического подтверждения (3D Secure и т.д.)
-                    # Stripe может потребовать return_url, если confirm=True и платеж требует доп. шагов
-                    # Мы обработаем это на клиенте, но для серверной части это может выглядеть так:
-                    # return_url=request.build_absolute_uri(reverse('payment_confirmation')), # Нужен будет такой URL
-                    # Однако, для простоты, если confirm=True и платеж проходит сразу, этого может не потребоваться
-                    # или Stripe вернет ошибку, если требуется аутентификация.
-                    # Более надежный подход - не ставить confirm=True здесь, а подтверждать на клиенте после создания Intent.
-                    # Но для упрощения оставим так, предполагая, что большинство платежей пройдут сразу.
-                    # Если платеж требует аутентификации, Stripe вернет статус 'requires_action'
-                    # и client_secret для обработки на клиенте.
-
-                    # Важно: Stripe может потребовать `automatic_payment_methods={"enabled": True}`
-                    # для некоторых сценариев с PaymentIntents, особенно если вы хотите, чтобы Stripe
-                    # сам определял доступные методы оплаты.
-                    # payment_method_types=['card'], # Можно явно указать типы методов
+                    confirm=True,
+                    description=f"Заказ QuickShop: {', '.join(order_items_details)}"
                 )
 
                 if intent.status == 'succeeded':
                     order = form.save(commit=False)
-                    order.total = total_amount / 100 # Сохраняем сумму в сумах
-                    order.paid = True # Отмечаем, что заказ оплачен
-                    order.stripe_payment_intent_id = intent.id # Сохраняем ID платежа Stripe
+                    order.total = total_amount / 100
+                    order.paid = True
+                    order.stripe_payment_intent_id = intent.id
                     order.save()
-                    # Можно добавить товары заказа в отдельную модель OrderItem, если нужно
                     request.session['cart'] = {}
                     messages.success(request, 'Ваш заказ успешно оплачен и оформлен!')
-                    return redirect('thanks_page') # Создадим такой URL позже
+                    return redirect('thanks_page')
                 elif intent.status == 'requires_action' or intent.status == 'requires_payment_method':
-                    # Требуется дополнительное действие от пользователя (например, 3D Secure)
-                    # или новый метод оплаты. Stripe.js на клиенте должен обработать это, используя client_secret.
-                    # В этом случае мы не должны сохранять заказ как оплаченный.
-                    # Мы можем вернуть client_secret клиенту, чтобы он завершил платеж.
-                    # Но для текущего упрощенного примера, если не 'succeeded', считаем ошибкой.
                     messages.error(request, f"Платеж требует дополнительного действия или не удался: {intent.last_payment_error.message if intent.last_payment_error else 'Попробуйте снова'}")
                 else:
                     messages.error(request, f"Ошибка платежа: {intent.last_payment_error.message if intent.last_payment_error else 'Неизвестная ошибка'}")
@@ -187,31 +166,33 @@ def checkout(request):
             messages.error(request, "Пожалуйста, исправьте ошибки в форме.")
     else:
         form = OrderForm()
-        # Для инициализации Stripe Elements на клиенте нам нужен client_secret из PaymentIntent
-        # Создадим PaymentIntent здесь, чтобы передать client_secret в шаблон
         try:
             intent = stripe.PaymentIntent.create(
                 amount=total_amount,
                 currency='uzs',
-                # automatic_payment_methods={"enabled": True}, # Позволяет Stripe выбирать методы
-                payment_method_types=['card'], # Явно указываем карту
+                payment_method_types=['card'],
             )
             client_secret = intent.client_secret
         except stripe.error.StripeError as e:
             messages.error(request, f"Ошибка при инициализации платежа: {str(e)}")
             client_secret = None
+            print("Debug: Stripe Error =", str(e))
         except Exception as e:
             messages.error(request, f"Произошла ошибка: {str(e)}")
             client_secret = None
+            print("Debug: General Error =", str(e))
 
-
-    return render(request, 'main/checkout.html', {
+    context = {
         'form': form,
-        'total': total_amount / 100, # Передаем сумму в сумах
+        'total': total_amount / 100,
         'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY,
-        'client_secret': client_secret if 'client_secret' in locals() else None # Передаем client_secret
-    })
+        'client_secret': client_secret if 'client_secret' in locals() else None,
+        'debug': settings.DEBUG,  # Добавляем флаг debug в контекст
+    }
+    print("Debug: Context =", context)
+    return render(request, 'main/checkout.html', context)
 
+# Удалить товар из корзины
 def remove_from_cart(request, pk):
     try:
         cart = request.session.get('cart', {})
@@ -270,17 +251,6 @@ def logout_view(request):
 
 # Страница благодарности после успешной оплаты
 def thanks_page_view(request):
-    # Можно передать ID последнего заказа, если он был сохранен в сессии
-    # last_order_id = request.session.get('last_order_id')
-    # order = None
-    # if last_order_id:
-    #     try:
-    #         order = Order.objects.get(id=last_order_id)
-    #     except Order.DoesNotExist:
-    #         pass # Заказ не найден, ничего страшного
-    # context = {'order': order}
-    # В `checkout` view мы уже показываем сообщение об успехе.
-    # Здесь просто отображаем страницу.
     return render(request, 'main/thanks.html')
 
 @login_required
@@ -323,7 +293,6 @@ def create_order(request):
                 messages.error(request, 'Ваша корзина пуста')
                 return redirect('cart')
 
-            # Создание заказа
             order = Order.objects.create(
                 user=request.user if request.user.is_authenticated else None,
                 total_amount=Decimal('0.00')
@@ -342,7 +311,6 @@ def create_order(request):
             order.total_amount = total
             order.save()
 
-            # Очистка корзины
             request.session['cart'] = {}
             messages.success(request, 'Заказ успешно создан')
             return redirect('home')
@@ -350,4 +318,4 @@ def create_order(request):
         messages.error(request, 'Произошла ошибка при оформлении заказа. Пожалуйста, попробуйте позже.')
         return redirect('cart')
 
-    return redirect('cart')
+    return redirect('cart') 
