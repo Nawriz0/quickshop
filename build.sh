@@ -14,6 +14,9 @@ python -c "import sys; print('\n'.join(sys.path))"
 echo "Current directory contents:"
 ls -R
 
+echo "Creating necessary directories..."
+mkdir -p staticfiles media
+
 echo "Collecting static files..."
 python manage.py collectstatic --no-input --clear
 
@@ -30,6 +33,6 @@ echo "Running database migrations..."
 python manage.py migrate
 
 echo "Testing WSGI application..."
-python -c "from wsgi import app; print('WSGI application loaded successfully')"
+PYTHONPATH=$PYTHONPATH:$PWD python -c "from wsgi import app; print('WSGI application loaded successfully')"
 
 echo "Build completed successfully!" 

@@ -4,7 +4,7 @@ services:
     env: python
     region: frankfurt
     buildCommand: "./build.sh"
-    startCommand: "gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2 --threads 2 --log-level debug"
+    startCommand: "gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2 --threads 2 --log-level debug --chdir $RENDER_PROJECT_DIR"
     envVars:
       - key: DEBUG
         value: False
@@ -24,6 +24,10 @@ services:
         value: $RENDER_PROJECT_DIR
       - key: WSGI_APP
         value: wsgi:app
+      - key: STATIC_ROOT
+        value: $RENDER_PROJECT_DIR/staticfiles
+      - key: MEDIA_ROOT
+        value: $RENDER_PROJECT_DIR/media
     disk:
       name: sqlite
       mountPath: /data
